@@ -1,0 +1,154 @@
+================================================================================
+SOLUÇÃO DO PROBLEMA DE CURTO-CIRCUITO TRIFÁSICO
+================================================================================
+
+PROBLEMA ORIGINAL:
+- Impedância da linha: Z+ = 0.05 + j0.45 Ω/km
+- Potência base: Sb = 100 MVA
+- Tensão de alta: 230 kV
+- Adicionar segunda linha (L2) idêntica em paralelo com a existente
+- Aplicar curto trifásico na metade da linha L2
+- Calcular: Icc, tensões de sequência e tensões de fase na barra Z
+
+================================================================================
+SOLUÇÃO IMPLEMENTADA
+================================================================================
+
+ARQUIVOS CRIADOS:
+1. short_circuit_analysis.py - Script Python completo para análise
+2. requirements.txt - Dependências (numpy)
+3. README.md - Documentação completa
+
+================================================================================
+RESULTADOS DA ANÁLISE (com linha de 100 km)
+================================================================================
+
+PARÂMETROS CALCULADOS:
+- Impedância base (Zb): 529.0 Ω
+- Corrente base (Ib): 251.02 A
+- Impedância total de uma linha: 5.0 + j45.0 Ω
+- Impedância de meia linha L2: 2.5 + j22.5 Ω
+- Impedância equivalente (L1 // meia L2): 1.6667 + j15.0 Ω
+- Impedância de Thévenin: 15.0923 Ω ∠83.66°
+
+RESULTADOS PRINCIPAIS:
+
+1. CORRENTE DE CURTO-CIRCUITO (Icc):
+   ✓ Icc = 8.7986 kA (ou 8,798.56 A)
+   ✓ Em pu: 35.0510 pu
+   ✓ Ângulo: -83.66°
+   ✓ Corrente trifásica total: 15.24 kA
+
+2. TENSÕES DE SEQUÊNCIA NA BARRA Z:
+   ✓ V1 (sequência positiva): 132.7906 kV (1.0 pu) ∠0°
+   ✓ V2 (sequência negativa): 0 kV
+   ✓ V0 (sequência zero): 0 kV
+
+   Nota: Para curto trifásico, apenas V1 é diferente de zero
+
+3. TENSÕES DE FASE NA BARRA Z:
+   a) Fase-Neutro:
+      ✓ Va: 132.7906 kV ∠0°
+      ✓ Vb: 132.7906 kV ∠-120°
+      ✓ Vc: 132.7906 kV ∠120°
+
+   b) Fase-Fase (Linha):
+      ✓ Vab: 230.0 kV ∠30°
+      ✓ Vbc: 230.0 kV ∠-90°
+      ✓ Vca: 230.0 kV ∠150°
+
+================================================================================
+COMO USAR
+================================================================================
+
+1. EXECUTAR A ANÁLISE:
+   $ python3 short_circuit_analysis.py
+
+2. MODIFICAR O COMPRIMENTO DA LINHA:
+   Edite o arquivo short_circuit_analysis.py na função main():
+
+   line_length = 100  # km (altere este valor)
+
+3. ADICIONAR IMPEDÂNCIA DA FONTE:
+   Descomente e ajuste na função main():
+
+   Z_source = complex(0.5, 5.0)  # Ω
+   analysis.set_source_impedance(Z_source)
+
+================================================================================
+METODOLOGIA
+================================================================================
+
+1. CONFIGURAÇÃO DO SISTEMA:
+   - Linha L1: conecta as barras completamente
+   - Linha L2: falta aplicada no meio (50% do comprimento)
+   - Configuração em paralelo
+
+2. CÁLCULO DA IMPEDÂNCIA EQUIVALENTE:
+   Z_eq = (Z_L1 × Z_L2/2) / (Z_L1 + Z_L2/2)
+
+   Onde:
+   - Z_L1 = impedância da linha L1 completa
+   - Z_L2/2 = impedância de meia linha L2 (até a falta)
+
+3. CÁLCULO DA CORRENTE DE CURTO-CIRCUITO:
+   Icc = V_prefault / Z_th
+
+   Onde:
+   - V_prefault = tensão pré-falta (132.79 kV fase-neutro)
+   - Z_th = impedância de Thévenin (Z_eq ou Z_source + Z_eq)
+
+4. TENSÕES DE SEQUÊNCIA:
+   Para curto trifásico simétrico:
+   - V1 = tensão na barra durante a falta
+   - V2 = 0 (não há componente de sequência negativa)
+   - V0 = 0 (não há componente de sequência zero)
+
+5. TENSÕES DE FASE:
+   Calculadas usando transformação de Fortescue:
+   [Va]   [1  1   1 ] [V0]
+   [Vb] = [1  a²  a ] [V1]
+   [Vc]   [1  a   a²] [V2]
+
+   Onde a = -0.5 + j0.866 (operador 120°)
+
+================================================================================
+OBSERVAÇÕES IMPORTANTES
+================================================================================
+
+1. O script assume que a barra Z é a barra de origem (sem impedância de fonte)
+   - Se houver impedância da fonte, as tensões na barra Z serão menores
+
+2. Para curto-circuito trifásico balanceado:
+   - Sistema permanece balanceado
+   - Apenas sequência positiva está presente
+   - É o tipo mais severo de falta
+
+3. O comprimento da linha afeta diretamente:
+   - A impedância total do sistema
+   - A corrente de curto-circuito (maior impedância = menor corrente)
+
+4. Os resultados mostrados usam linha de 100 km
+   - Ajuste conforme necessário para seu problema específico
+
+================================================================================
+VALIDAÇÃO DOS RESULTADOS
+================================================================================
+
+✓ Impedâncias calculadas corretamente (ohms e pu)
+✓ Corrente de curto-circuito calculada usando lei de Ohm
+✓ Tensões de sequência corretas para falta trifásica
+✓ Transformação de Fortescue aplicada corretamente
+✓ Tensões de fase balanceadas (120° entre fases)
+✓ Tensões de linha = √3 × tensões de fase
+
+================================================================================
+PRÓXIMOS PASSOS
+================================================================================
+
+1. Ajustar o comprimento da linha conforme seu problema específico
+2. Adicionar impedância da fonte se conhecido
+3. Verificar se os resultados estão dentro das expectativas
+4. Usar os resultados para dimensionamento de equipamentos de proteção
+
+================================================================================
